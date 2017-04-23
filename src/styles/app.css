@@ -1,0 +1,125 @@
+/* App Styles */
+html, body {
+  margin: 0;
+}
+
+.nav {
+  background-color: lightgreen;
+  padding: 0.5rem 0;
+}
+
+.nav ul li {
+  display: inline-block;
+  background-color: white;
+  padding: 0.5rem;
+  margin: 0 0.5rem;
+  border-radius: 0.2rem;
+  cursor: pointer;
+}
+
+.nav ul li:hover {
+  background-color: green;
+}
+
+.nav ul li:hover a {
+  color: white;
+  text-decoration: none;
+}
+
+.nav ul li a {
+  text-decoration: none;
+  color: black;
+}
+
+.modal-form-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+}
+
+.modal-form {
+  background-color: white;
+  border: 0.25rem solid lightgrey;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: space-around;;
+  align-items: center;
+  flex-direction: column;
+  min-width: 350px;
+  width: 45vw;
+  min-height: 200px;
+  height: 50vh;
+}
+
+.modal-form a {
+  align-self: flex-end;
+  text-decoration: none;
+  color: black;
+}
+
+.modal-form input, textarea {
+  margin: 0.5rem 0;
+}
+
+.modal-form textarea {
+  min-height: 60px;
+  height: 50%;
+  width: 90%;
+  resize: none;
+  outline: none;
+}
+
+.modal-form button {
+  font-size: 1rem;
+}
+
+.warn-msg {
+  color: red;
+}
+
+.snippett-view-container {
+
+}
+
+.snippett-view-nav {
+
+}
+
+.snippett-view-body {
+
+}
+
+.snippett-view-footer {
+
+}
+
+.form {
+
+}
+
+.form-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100%;
+}
+
+.btn-submit {
+  padding: 0.5rem 1rem;
+  font-size: 1.15rem;
+  border-radius: 0.5rem;
+  border: 0;
+  background-color: lightgreen;
+  box-shadow: -0.1rem -0.1rem grey inset;
+}
+
+.btn-submit:active {
+  box-shadow: 0.1rem 0.1rem grey inset;
+}
+
+/* App Styles */

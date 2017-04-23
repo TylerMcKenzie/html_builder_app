@@ -1,0 +1,29 @@
+.signin {
+
+}
+
+.signin-form {
+  width: 50vw;
+  height: 50vh;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-direction: column;
+}
+
+.signin-form .form-group {
+  width: 50%;
+  min-width: 150px;
+}
+
+.signin-form label {
+  font-size: 1.1rem;
+  color: grey;
+}
+
+.signin-form input[type="text"], .signin-form input[type="password"] {
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  border-radius: 0.3rem;
+}

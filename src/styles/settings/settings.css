@@ -1,0 +1,6 @@
+@import "fonts.css";
+
+/* Font setting */
+html, body, form, input, textarea, button {
+  font-family: nunito;
+}

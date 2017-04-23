@@ -1,0 +1,53 @@
+/* Nunito */
+
+/* Lighter */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-ExtraLight.ttf');
+  font-weight: 200;
+}
+
+/* Light */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-Light.ttf');
+  font-weight: 300;
+}
+
+/* Normal */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-Regular.ttf');
+  font-weight: normal;
+  font-weight: 400;
+}
+
+/* Semi Bold */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-SemiBold.ttf');
+  font-weight: 500;
+}
+
+/* Bold */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-Bold.ttf');
+  font-weight: bold;
+  font-weight: 600;
+}
+
+/* Bolder */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-ExtraBold.ttf');
+  font-weight: bolder;
+  font-weight: 800;
+}
+
+/* Black */
+@font-face {
+  font-family: nunito;
+  src: url('../fonts/Nunito/Nunito-Black.ttf');
+  font-weight: 900;
+}
