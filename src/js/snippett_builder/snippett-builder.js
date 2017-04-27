@@ -1,120 +1,66 @@
 import { parseHtml } from '../util/DOM-helper';
+import Modal from './modal';
 
 export default class SnippettBuilder {
   constructor(viewNode, templates, elements ) {
-    this.templates = templates || []; // Will fetch templates from server later. If empty allow local building.
+    // Use this.nodes to watch certain nodes
+    this.nodes = {}
+    this.layouts = templates || []; // Will fetch templates from server later. If empty allow local building.
     this.elements = elements || [];
-    this.viewNode = viewNode;
+    this.appNode = viewNode;
 
-    this.modalForm = {
-      template: parseHtml("<div class='modal-form-container' style='display: none;'><div class='modal-form'><a href='#'>&#10005;</a><div class='warn-msg' style='display: none;'>* Fields cannot be blank.</div><input type='text' placeholder='Name' name='name' /><textarea name='template' placeholder='Template. . .' ></textarea><button class='btn-submit'>ADD</button></div></div>"),
-      open: function() {
-        this.template.style.display = "";
-      },
-      close: function() {
-        this.template.getElementsByTagName('input')[0].value = "";
-        this.template.getElementsByTagName('textarea')[0].value = "";
-        this.template.getElementsByClassName('warn-msg')[0].style.display = 'none';
-        this.template.style.display = "none";
-
-      },
-      init: function() {
-        document.getElementsByTagName('body')[0].prepend(this.template);
-      },
-      on: function(event,  handler) {
-        this.template.addEventListener(event, handler);
-      },
-      getFieldValues: function () {
-        let inputValue = this.template.getElementsByTagName('input')[0].value;
-        let textAreaValue = this.template.getElementsByTagName('textarea')[0].value;
-
-        return { name: inputValue, template: textAreaValue }
-      },
-      empty: function() {
-        let inputValue = this.template.getElementsByTagName('input')[0].value;
-        let textAreaValue = this.template.getElementsByTagName('textarea')[0].value;
-
-        if( !inputValue.length || !textAreaValue.length ) {
-          return true;
-        }
-        return false;
-      },
-      warn: function() {
-        let warnMsg = this.template.getElementsByClassName('warn-msg')[0];
-
-        warnMsg.style.display = 'block';
-      }
-    };
-
+    this.modalForm = new Modal("<div class='modal-form-container' style='display: none;'><div class='modal-form'><a href='#'>&#10005;</a><div class='warn-msg' style='display: none;'>* Fields cannot be blank.</div><input type='text' placeholder='Name' name='name' /><textarea name='template' placeholder='Template. . .' ></textarea><button class='btn-submit'>ADD</button></div></div>");
   }
 
   start() {
-    this.modalForm.init();
-    this.renderTemplateNav();
-    this.renderLayout();
+    document.getElementsByTagName('body')[0].prepend(this.modalForm.template);
+
+    this.renderNav();
+    this.renderControlsPanel();
   }
 
-  renderTemplateNav() {
-    let nav = document.getElementById('snippett-nav');
+  renderNav() {
+    let nav = document.createElement('div');
+    nav.id = 'snippett-nav';
+    nav.classList.add('nav');
+    this.appNode.append(nav);
 
     let addElButton = document.createElement('button');
-    let addLayoutButton = document.createElement('button');
     let elementBtnText = document.createTextNode('+ Element');
-    let layoutBtnText = document.createTextNode('+ Layout');
 
     addElButton.appendChild(elementBtnText);
     addElButton.setAttribute('data-list', 'elements');
+
+    let addLayoutButton = document.createElement('button');
+    let layoutBtnText = document.createTextNode('+ Layout');
+
     addLayoutButton.appendChild(layoutBtnText);
     addLayoutButton.setAttribute('data-list', 'layouts');
 
     nav.appendChild(addElButton);
     nav.appendChild(addLayoutButton);
 
+    if(this.layouts) {
+      let layoutUl = document.createElement('ul');
+      layoutUl.id = "layout-nav";
 
+      this.nodes.layoutUl = layoutUl;
 
-    let layoutUl = document.createElement('ul');
-    let elementUl = document.createElement('ul');
+      nav.appendChild(layoutUl);
 
-    layoutUl.id = "layout-nav";
-    elementUl.id = "element-nav";
-
-    nav.appendChild(layoutUl);
-    nav.appendChild(elementUl);
-
-    if(this.templates) {
-
-      for(let key in this.templates){
-        let li = document.createElement('li');
-        let link = document.createElement('a');
-        let linkText = document.createTextNode(key);
-
-        link.href = "#";
-        link.setAttribute('data-id', key);
-        link.setAttribute('data-list', 'layouts');
-        link.appendChild(linkText);
-
-        li.appendChild(link);
-
-        layoutUl.appendChild(li);
-      }
-
-      for(let key in this.elements){
-        let li = document.createElement('li');
-        let link = document.createElement('a');
-        let linkText = document.createTextNode(key);
-
-        link.href = "#";
-        link.setAttribute('data-id', key);
-        link.setAttribute('data-list', 'elements');
-        link.appendChild(linkText);
-
-        li.appendChild(link);
-
-        elementUl.appendChild(li);
-      }
-
+      this.renderLayoutsList()
     }
 
+    if(this.elements) {
+      let elementUl = document.createElement('ul');
+      elementUl.id = "element-nav";
+
+      this.nodes.elemUl = elementUl;
+
+      nav.appendChild(elementUl);
+
+      this.renderElementsList();
+    }
 
     nav.addEventListener('click', (e) => {
       e.preventDefault();
@@ -152,6 +98,48 @@ export default class SnippettBuilder {
     });
   }
 
+  renderControlsPanel() {
+    let controlPanel = document.createElement('div');
+    controlPanel.classList.add('control-panel');
+
+    this.appNode.appendChild(controlPanel);
+
+  }
+
+  renderLayoutsList() {
+    for(let key in this.layouts){
+      let li = document.createElement('li');
+      let link = document.createElement('a');
+      let linkText = document.createTextNode(key);
+
+      link.href = "#";
+      link.setAttribute('data-id', key);
+      link.setAttribute('data-list', 'layouts');
+      link.appendChild(linkText);
+
+      li.appendChild(link);
+
+      this.nodes.layoutUl.appendChild(li);
+    }
+  }
+
+  renderElementsList() {
+    for(let key in this.elements){
+      let li = document.createElement('li');
+      let link = document.createElement('a');
+      let linkText = document.createTextNode(key);
+
+      link.href = "#";
+      link.setAttribute('data-id', key);
+      link.setAttribute('data-list', 'elements');
+      link.appendChild(linkText);
+
+      li.appendChild(link);
+
+      this.nodes.elemUl.appendChild(li);
+    }
+  }
+
   renderElement(id) {
     let contentBody = document.getElementsByClassName('content-box')[0];
     let content = parseHtml(this.elements[id]);
@@ -162,7 +150,9 @@ export default class SnippettBuilder {
   openModalForm(destination) {
     this.modalForm.open();
 
-    this.modalForm.on('click', (e) => {
+    let clickHandler = (e) => {
+      e.preventDefault();
+      
       if(e.target.nodeName === "BUTTON") {
         let formData = this.modalForm.getFieldValues();
 
@@ -173,32 +163,39 @@ export default class SnippettBuilder {
             this.addElement(formData);
           }
 
+          this.modalForm.off('click', clickHandler);
           this.modalForm.close();
         } else {
-          this.modalForm.warn();
+          this.modalForm.showWarnMsg();
         }
 
       } else if (e.target.nodeName === 'A' || e.target.classList.contains('modal-form-container')) {
+        this.modalForm.off('click', clickHandler);
         this.modalForm.close();
       }
-    })
+    }
+
+    this.modalForm.on('click', clickHandler);
+
   }
 
   addLayout(data) {
-    this.templates = [...this.templates, data];
-    console.log(this.templates)
+    this.layouts = [...this.layouts, data];
+
+    this.renderLayoutsList()
   }
 
   addElement(data) {
     this.elements = [...this.elements, data];
-    console.log(this.elements)
+
+    this.renderElementsList();
   }
 
   closeModalForm() {
     this.modalForm.close()
   }
 
-  clearContent() {
+  clearContentBoxes() {
     let contentBoxes = document.getElementsByClassName('content-box');
 
     for (let i = 0; i < contentBoxes.length; i++) {
@@ -208,12 +205,12 @@ export default class SnippettBuilder {
 
   renderLayout(id) {
     if(!id) {
-      this.viewNode.innerHTML = this.templates.default_layout;
+      this.appNode.innerHTML = this.layouts.default_layout;
     } else {
-      this.viewNode.innerHTML = this.templates[id];
+      this.appNode.innerHTML = this.layouts[id];
     }
 
-    this.insertContentBoxes(this.viewNode);
+    this.insertContentBoxes(this.appNode);
   }
 
   insertContentBoxes(layoutNode) {
