@@ -1,6 +1,7 @@
 /* App Styles */
 html, body {
   margin: 0;
+  height: 100%;
 }
 
 .nav {
@@ -81,24 +82,18 @@ html, body {
   color: red;
 }
 
-.snippett-view-container {
-
-}
-
-.snippett-view-nav {
-
-}
-
-.snippett-view-body {
-
-}
-
-.snippett-view-footer {
-
-}
-
 .form {
 
+}
+
+/*.control-panel {
+  width: 17rem;
+  height: 100%;
+  background-color: darkgrey;
+}*/
+
+.snippett-app-view {
+  height: 100%;
 }
 
 .form-container {
@@ -121,5 +116,7 @@ html, body {
 .btn-submit:active {
   box-shadow: 0.1rem 0.1rem grey inset;
 }
+
+
 
 /* App Styles */

@@ -14,8 +14,9 @@ export default class SnippettBuilder {
 
   start() {
     document.getElementsByTagName('body')[0].prepend(this.modalForm.template);
-    
+
     this.renderNav();
+    this.renderControlsPanel();
   }
 
   renderNav() {
@@ -97,6 +98,14 @@ export default class SnippettBuilder {
     });
   }
 
+  renderControlsPanel() {
+    let controlPanel = document.createElement('div');
+    controlPanel.classList.add('control-panel');
+
+    this.appNode.appendChild(controlPanel);
+
+  }
+
   renderLayoutsList() {
     for(let key in this.layouts){
       let li = document.createElement('li');
@@ -142,6 +151,8 @@ export default class SnippettBuilder {
     this.modalForm.open();
 
     let clickHandler = (e) => {
+      e.preventDefault();
+      
       if(e.target.nodeName === "BUTTON") {
         let formData = this.modalForm.getFieldValues();
 
