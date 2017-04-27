@@ -1816,116 +1816,68 @@ module.exports = function spread(callback) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_DOM_helper__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__modal__ = __webpack_require__(59);
+
 
 
 class SnippettBuilder {
   constructor(viewNode, templates, elements) {
-    this.templates = templates || []; // Will fetch templates from server later. If empty allow local building.
+    // Use this.nodes to watch certain nodes
+    this.nodes = {};
+    this.layouts = templates || []; // Will fetch templates from server later. If empty allow local building.
     this.elements = elements || [];
-    this.viewNode = viewNode;
+    this.appNode = viewNode;
 
-    this.modalForm = {
-      template: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_DOM_helper__["a" /* parseHtml */])("<div class='modal-form-container' style='display: none;'><div class='modal-form'><a href='#'>&#10005;</a><div class='warn-msg' style='display: none;'>* Fields cannot be blank.</div><input type='text' placeholder='Name' name='name' /><textarea name='template' placeholder='Template. . .' ></textarea><button class='btn-submit'>ADD</button></div></div>"),
-      open: function () {
-        this.template.style.display = "";
-      },
-      close: function () {
-        this.template.getElementsByTagName('input')[0].value = "";
-        this.template.getElementsByTagName('textarea')[0].value = "";
-        this.template.getElementsByClassName('warn-msg')[0].style.display = 'none';
-        this.template.style.display = "none";
-      },
-      init: function () {
-        document.getElementsByTagName('body')[0].prepend(this.template);
-      },
-      on: function (event, handler) {
-        this.template.addEventListener(event, handler);
-      },
-      getFieldValues: function () {
-        let inputValue = this.template.getElementsByTagName('input')[0].value;
-        let textAreaValue = this.template.getElementsByTagName('textarea')[0].value;
-
-        return { name: inputValue, template: textAreaValue };
-      },
-      empty: function () {
-        let inputValue = this.template.getElementsByTagName('input')[0].value;
-        let textAreaValue = this.template.getElementsByTagName('textarea')[0].value;
-
-        if (!inputValue.length || !textAreaValue.length) {
-          return true;
-        }
-        return false;
-      },
-      warn: function () {
-        let warnMsg = this.template.getElementsByClassName('warn-msg')[0];
-
-        warnMsg.style.display = 'block';
-      }
-    };
+    this.modalForm = new __WEBPACK_IMPORTED_MODULE_1__modal__["a" /* default */]("<div class='modal-form-container' style='display: none;'><div class='modal-form'><a href='#'>&#10005;</a><div class='warn-msg' style='display: none;'>* Fields cannot be blank.</div><input type='text' placeholder='Name' name='name' /><textarea name='template' placeholder='Template. . .' ></textarea><button class='btn-submit'>ADD</button></div></div>");
   }
 
   start() {
-    this.modalForm.init();
-    this.renderTemplateNav();
-    this.renderLayout();
+    document.getElementsByTagName('body')[0].prepend(this.modalForm.template);
+
+    this.renderNav();
   }
 
-  renderTemplateNav() {
-    let nav = document.getElementById('snippett-nav');
+  renderNav() {
+    let nav = document.createElement('div');
+    nav.id = 'snippett-nav';
+    nav.classList.add('nav');
+    this.appNode.append(nav);
 
     let addElButton = document.createElement('button');
-    let addLayoutButton = document.createElement('button');
     let elementBtnText = document.createTextNode('+ Element');
-    let layoutBtnText = document.createTextNode('+ Layout');
 
     addElButton.appendChild(elementBtnText);
     addElButton.setAttribute('data-list', 'elements');
+
+    let addLayoutButton = document.createElement('button');
+    let layoutBtnText = document.createTextNode('+ Layout');
+
     addLayoutButton.appendChild(layoutBtnText);
     addLayoutButton.setAttribute('data-list', 'layouts');
 
     nav.appendChild(addElButton);
     nav.appendChild(addLayoutButton);
 
-    let layoutUl = document.createElement('ul');
-    let elementUl = document.createElement('ul');
+    if (this.layouts) {
+      let layoutUl = document.createElement('ul');
+      layoutUl.id = "layout-nav";
 
-    layoutUl.id = "layout-nav";
-    elementUl.id = "element-nav";
+      this.nodes.layoutUl = layoutUl;
 
-    nav.appendChild(layoutUl);
-    nav.appendChild(elementUl);
+      nav.appendChild(layoutUl);
 
-    if (this.templates) {
+      this.renderLayoutsList();
+    }
 
-      for (let key in this.templates) {
-        let li = document.createElement('li');
-        let link = document.createElement('a');
-        let linkText = document.createTextNode(key);
+    if (this.elements) {
+      let elementUl = document.createElement('ul');
+      elementUl.id = "element-nav";
 
-        link.href = "#";
-        link.setAttribute('data-id', key);
-        link.setAttribute('data-list', 'layouts');
-        link.appendChild(linkText);
+      this.nodes.elemUl = elementUl;
 
-        li.appendChild(link);
+      nav.appendChild(elementUl);
 
-        layoutUl.appendChild(li);
-      }
-
-      for (let key in this.elements) {
-        let li = document.createElement('li');
-        let link = document.createElement('a');
-        let linkText = document.createTextNode(key);
-
-        link.href = "#";
-        link.setAttribute('data-id', key);
-        link.setAttribute('data-list', 'elements');
-        link.appendChild(linkText);
-
-        li.appendChild(link);
-
-        elementUl.appendChild(li);
-      }
+      this.renderElementsList();
     }
 
     nav.addEventListener('click', e => {
@@ -1964,6 +1916,40 @@ class SnippettBuilder {
     });
   }
 
+  renderLayoutsList() {
+    for (let key in this.layouts) {
+      let li = document.createElement('li');
+      let link = document.createElement('a');
+      let linkText = document.createTextNode(key);
+
+      link.href = "#";
+      link.setAttribute('data-id', key);
+      link.setAttribute('data-list', 'layouts');
+      link.appendChild(linkText);
+
+      li.appendChild(link);
+
+      this.nodes.layoutUl.appendChild(li);
+    }
+  }
+
+  renderElementsList() {
+    for (let key in this.elements) {
+      let li = document.createElement('li');
+      let link = document.createElement('a');
+      let linkText = document.createTextNode(key);
+
+      link.href = "#";
+      link.setAttribute('data-id', key);
+      link.setAttribute('data-list', 'elements');
+      link.appendChild(linkText);
+
+      li.appendChild(link);
+
+      this.nodes.elemUl.appendChild(li);
+    }
+  }
+
   renderElement(id) {
     let contentBody = document.getElementsByClassName('content-box')[0];
     let content = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_DOM_helper__["a" /* parseHtml */])(this.elements[id]);
@@ -1974,7 +1960,7 @@ class SnippettBuilder {
   openModalForm(destination) {
     this.modalForm.open();
 
-    this.modalForm.on('click', e => {
+    let clickHandler = e => {
       if (e.target.nodeName === "BUTTON") {
         let formData = this.modalForm.getFieldValues();
 
@@ -1985,31 +1971,37 @@ class SnippettBuilder {
             this.addElement(formData);
           }
 
+          this.modalForm.off('click', clickHandler);
           this.modalForm.close();
         } else {
-          this.modalForm.warn();
+          this.modalForm.showWarnMsg();
         }
       } else if (e.target.nodeName === 'A' || e.target.classList.contains('modal-form-container')) {
+        this.modalForm.off('click', clickHandler);
         this.modalForm.close();
       }
-    });
+    };
+
+    this.modalForm.on('click', clickHandler);
   }
 
   addLayout(data) {
-    this.templates = [...this.templates, data];
-    console.log(this.templates);
+    this.layouts = [...this.layouts, data];
+
+    this.renderLayoutsList();
   }
 
   addElement(data) {
     this.elements = [...this.elements, data];
-    console.log(this.elements);
+
+    this.renderElementsList();
   }
 
   closeModalForm() {
     this.modalForm.close();
   }
 
-  clearContent() {
+  clearContentBoxes() {
     let contentBoxes = document.getElementsByClassName('content-box');
 
     for (let i = 0; i < contentBoxes.length; i++) {
@@ -2019,12 +2011,12 @@ class SnippettBuilder {
 
   renderLayout(id) {
     if (!id) {
-      this.viewNode.innerHTML = this.templates.default_layout;
+      this.appNode.innerHTML = this.layouts.default_layout;
     } else {
-      this.viewNode.innerHTML = this.templates[id];
+      this.appNode.innerHTML = this.layouts[id];
     }
 
-    this.insertContentBoxes(this.viewNode);
+    this.insertContentBoxes(this.appNode);
   }
 
   insertContentBoxes(layoutNode) {
@@ -4163,6 +4155,228 @@ module.exports = g;
 __webpack_require__(8);
 module.exports = __webpack_require__(9);
 
+
+/***/ }),
+/* 42 */,
+/* 43 */,
+/* 44 */,
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__util_DOM_helper__ = __webpack_require__(29);
+
+
+class Modal {
+  constructor(template) {
+    this.template = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__util_DOM_helper__["a" /* parseHtml */])(template);
+    this.eventListeners = [];
+  }
+
+  open() {
+    this.template.style.display = "";
+  }
+
+  close() {
+    this.clearForm();
+    this.template.style.display = "none";
+  }
+
+  registerListener(event, target, handler) {
+    if (handler) {
+      this.eventListeners.push({ event, target, handler });
+    } else {
+      let handler = target;
+      this.eventListeners.push({ event, handler });
+    }
+  }
+
+  unregisterListener(event, handler) {
+    for (let i = 0; i < this.eventListeners.length; i++) {
+      if (this.eventListeners[i].event === event && this.eventListeners[i].handler === handler) {
+        if (this.eventListeners[i].target) {
+          this.eventListeners[i].target.removeEventListener(event, handler);
+        } else {
+          this.template.removeEventListener(event, handler);
+        }
+        this.eventListeners.splice(i, 1);
+      }
+    }
+  }
+
+  on(event, target, handler) {
+    if (handler) {
+      let node = this.template;
+
+      if (/^[.]/.test(target)) {
+        let className = target.replace(/[.]/, '');
+
+        let nodes = this.template.getElementsByClassName(className);
+
+        for (let i = 0; i < nodes.length; i++) {
+          nodes[i].addEventListener(event, handler);
+          this.registerListener(event, nodes[i], handler);
+        }
+      } else if (/^[#]/.test(target)) {
+        let id = target.replace(/[#]/, '');
+        let node = this.template.getElementById(id);
+
+        node.addEventListener(event, handler);
+        this.registerListener(event, handler);
+      } else {
+        let tagName = target;
+        let nodes = this.template.getElementsByTagName(tagName);
+
+        for (let i = 0; i < nodes.length; i++) {
+          nodes[i].addEventListener(event, handler);
+          this.registerListener(event, nodes[i], handler);
+        }
+      }
+    } else {
+      let handler = target;
+
+      this.template.addEventListener(event, handler);
+      this.registerListener(event, handler);
+    }
+  }
+
+  off(event, handler) {
+    this.unregisterListener(event, handler);
+  }
+
+  getFieldValues() {
+    let inputFields = this.template.getElementsByTagName('input');
+    let textareaFields = this.template.getElementsByTagName('textarea');
+    let data = {};
+
+    if (inputFields) {
+      for (let i = 0; i < inputFields.lenth; i++) {
+        let fieldName = inputFields[i].getAttribute('name');
+        let value = inputFields[i].value;
+
+        data[fieldName] = value;
+      }
+    }
+
+    if (textareaFields) {
+      for (let i = 0; i < textareaFields.length; i++) {
+        let fieldName = textareaFields[i].getAttribute(name);
+        let value = textareaFields[i].value;
+
+        data[fieldName] = value;
+      }
+    }
+
+    return data;
+  }
+
+  empty() {
+    let values = this.getFieldValues();
+
+    for (let v in values) {
+      if (values[v] === '') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  clearForm() {
+    let inputs = this.template.getElementsByTagName('input');
+    let textareas = this.template.getElementsByTagName('textarea');
+
+    if (inputs) {
+      for (let i = 0; i < inputs.length; i++) {
+        inputs[i].value = '';
+      }
+    }
+
+    if (textareas) {
+      for (let i = 0; i < textareas.length; i++) {
+        textareas[i].value = '';
+      }
+    }
+  }
+}
+/* harmony export (immutable) */ __webpack_exports__["a"] = Modal;
+
+
+/*
+{
+  template: parseHtml("<div class='modal-form-container' style='display: none;'><div class='modal-form'><a href='#'>&#10005;</a><div class='warn-msg' style='display: none;'>* Fields cannot be blank.</div><input type='text' placeholder='Name' name='name' /><textarea name='template' placeholder='Template. . .' ></textarea><button class='btn-submit'>ADD</button></div></div>"),
+  open: function() {
+    this.template.style.display = "";
+  },
+  close: function() {
+    this.clearForm();
+    this.hideWarnMsg();
+    this.template.style.display = "none";
+
+  },
+  init: function() {
+    document.getElementsByTagName('body')[0].prepend(this.template);
+  },
+  listeners: [],
+  registerListener: function(event, handler) {
+    this.listeners.push({event, handler});
+  },
+  unregisterListener: function(event, handler) {
+    let listener;
+    for(let i = 0; i < this.listeners.length; i++) {
+      if(this.listeners[i].event === event && this.listeners[i].handler === handler ) {
+        this.template.removeEventListener(event, handler);
+        this.listeners.splice(0, i);
+      }
+    }
+  },
+  on: function(event, handler) {
+    this.template.addEventListener(event, handler);
+    this.registerListener(event, handler);
+  },
+  off: function(event, handler) {
+    this.unregisterListener(event, handler);
+  },
+  getFieldValues: function () {
+    let inputValue = this.template.getElementsByTagName('input')[0].value;
+    let textAreaValue = this.template.getElementsByTagName('textarea')[0].value;
+
+    return { name: inputValue, template: textAreaValue }
+  },
+  empty: function() {
+    let {name, template} = this.getFieldValues();
+
+    if( !name.length || !template.length ) {
+      return true;
+    }
+    return false;
+  },
+  showWarnMsg: function() {
+    this.template.getElementsByClassName('warn-msg')[0].style.display = 'block';
+  },
+  hideWarnMsg: function() {
+    this.template.getElementsByClassName('warn-msg')[0].style.display = 'none';
+  },
+  clearForm: function() {
+    this.template.getElementsByTagName('input')[0].value = "";
+    this.template.getElementsByTagName('textarea')[0].value = "";
+  }
+};
+*/
 
 /***/ })
 /******/ ]);
